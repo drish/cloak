@@ -1,0 +1,110 @@
+// Copyright © 2017 carlos derich <carlosderich@gmail.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package crypt
+
+import (
+	"crypto/rand"
+	"encoding/hex"
+	"io/ioutil"
+	"log"
+	"path/filepath"
+
+	"golang.org/x/crypto/nacl/secretbox"
+	"golang.org/x/crypto/scrypt"
+)
+
+// on Linux, Reader uses getrandom(2) if available, /dev/urandom otherwise.
+// on OpenBSD, Reader uses getentropy(2).
+// on other Unix-like systems, Reader reads from /dev/urandom.
+// on Windows systems, Reader uses the CryptGenRandom API.
+func random(size int) []byte {
+	r := make([]byte, size)
+	_, err := rand.Read(r)
+	if err != nil {
+		log.Fatal("error: ", err)
+		return nil
+	}
+
+	return r
+}
+
+// reads the target file
+func readFile(path string) ([]byte, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+// creates the output encrypted file
+// ie: input file.txt -> output
+func createFile(file string, content []byte) (string, error) {
+	var extension = filepath.Ext(file)
+	var name = file[0 : len(file)-len(extension)]
+	err := ioutil.WriteFile(name, content, 0644)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
+}
+
+// scrypt derives a 64 bytes key based from the passphrase if provided
+// randomly generates a passphrase if not provided.
+// uses nacl box to encrypt the data using derived key
+func Encrypt(path, passphrase string) {
+	npassphrase := random(64)
+
+	// generates a 32 bytes salt
+	salt := random(32)
+
+	// recommended parameters as of 2009 are N=16384, r=8, p=1.
+	// should be increased as memory latency and CPU parallelism increases.
+	var key [32]byte
+	keyBytes, err := scrypt.Key([]byte(npassphrase), salt, 16384, 8, 1, 32)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	// trick to get set a fixed size on the slice for nacl
+	copy(key[:], keyBytes)
+
+	log.Println("file key: ", hex.EncodeToString(keyBytes))
+
+	// must use a different nonce for each message you encrypt with the
+	// same key. Since the nonce here is 192 bits long, a random value
+	// provides a sufficiently small probability of repeats.
+	var nonce [24]byte
+	nonceBytes := random(24)
+	copy(nonce[:], nonceBytes)
+
+	data, err := readFile(path)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	encrypted := secretbox.Seal(nonce[:], data, &nonce, &key)
+
+	output, err := createFile(path, encrypted)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println("Output: ", output)
+	log.Println("Finished")
+}
