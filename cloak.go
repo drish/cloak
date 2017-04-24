@@ -57,7 +57,13 @@ func main() {
 			usageAndExit("File to encrypt not provided")
 		}
 		path := encryptCommand.Arg(0)
-		crypt.Encrypt(path, *passphrase)
+		output, err := crypt.Encrypt(path, *passphrase)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		log.Println("output: ", output)
+		log.Println("finished ! ")
 	case "decrypt":
 		decryptCommand.Parse(os.Args[2:])
 	default:

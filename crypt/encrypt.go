@@ -61,10 +61,15 @@ func createFile(file string, content []byte) (string, error) {
 	return name, nil
 }
 
+func handleError(e error) (string, error) {
+	log.Fatal(e)
+	return "", e
+}
+
 // scrypt derives a 64 bytes key based from the passphrase if provided
 // randomly generates a passphrase if not provided.
 // uses nacl box to encrypt the data using derived key
-func Encrypt(path, passphrase string) {
+func Encrypt(path, passphrase string) (string, error) {
 	npassphrase := random(64)
 
 	// generates a 32 bytes salt
@@ -75,8 +80,7 @@ func Encrypt(path, passphrase string) {
 	var key [32]byte
 	keyBytes, err := scrypt.Key([]byte(npassphrase), salt, 16384, 8, 1, 32)
 	if err != nil {
-		log.Fatal(err)
-		return
+		return handleError(err)
 	}
 
 	// trick to get set a fixed size on the slice for nacl
@@ -93,18 +97,15 @@ func Encrypt(path, passphrase string) {
 
 	data, err := readFile(path)
 	if err != nil {
-		log.Println(err)
-		return
+		return handleError(err)
 	}
 
 	encrypted := secretbox.Seal(nonce[:], data, &nonce, &key)
 
 	output, err := createFile(path, encrypted)
 	if err != nil {
-		log.Println(err)
-		return
+		return handleError(err)
 	}
 
-	log.Println("Output: ", output)
-	log.Println("Finished")
+	return output, nil
 }
