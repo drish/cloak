@@ -35,4 +35,5 @@ Flags:
 - flag "-overwrite" "-o" overwrites original file
 - flag "-r" encrypts all files in dir
 - efficitenly read large files using line by line chans
-- encrypt on msgpack format ?
+- encrypt using msgpack format ?
+- key splitting using shamir
