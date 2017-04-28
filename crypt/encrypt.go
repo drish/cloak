@@ -49,8 +49,7 @@ func readFile(path string) ([]byte, error) {
 	return data, nil
 }
 
-// creates the output encrypted file
-// ie: input file.txt -> output
+// creates the output encrypted file without extension
 func createFile(file string, content []byte) (string, error) {
 	var extension = filepath.Ext(file)
 	var name = file[0 : len(file)-len(extension)]
@@ -66,11 +65,18 @@ func handleError(e error) (string, error) {
 	return "", e
 }
 
-// scrypt derives a 64 bytes key based from the passphrase if provided
-// randomly generates a passphrase if not provided.
-// uses nacl box to encrypt the data using derived key
-func Encrypt(path, passphrase string) (string, error) {
-	npassphrase := random(64)
+// scrypt derives a 64 bytes key based from the passphrase if its provided
+// or randomly generates a passphrase if its not provided.
+// uses nacl box to encrypt the data using derived scrypt key
+func Encrypt(path string, passphrase []byte) (string, error) {
+
+	if len(passphrase) == 0 {
+		log.Println("generating random passphrase ...")
+		passphrase = random(16)
+		log.Println("file passphrase: ", hex.EncodeToString(passphrase))
+	} else {
+		log.Println("using user defined passphrase")
+	}
 
 	// generates a 32 bytes salt
 	salt := random(32)
@@ -78,15 +84,13 @@ func Encrypt(path, passphrase string) (string, error) {
 	// recommended parameters as of 2009 are N=16384, r=8, p=1.
 	// should be increased as memory latency and CPU parallelism increases.
 	var key [32]byte
-	keyBytes, err := scrypt.Key([]byte(npassphrase), salt, 16384, 8, 1, 32)
+	keyBytes, err := scrypt.Key(passphrase, salt, 16384, 8, 1, 32)
 	if err != nil {
 		return handleError(err)
 	}
 
-	// trick to get set a fixed size on the slice for nacl
+	// trick to set a fixed slice size for nacl
 	copy(key[:], keyBytes)
-
-	log.Println("file key: ", hex.EncodeToString(keyBytes))
 
 	// must use a different nonce for each message you encrypt with the
 	// same key. Since the nonce here is 192 bits long, a random value

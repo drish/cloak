@@ -16,23 +16,41 @@ package crypt
 
 import (
 	"io/ioutil"
+	"os"
 	"testing"
 )
 
-func TestEncrypt(t *testing.T) {
+// https://en.wikiquote.org/wiki/Rick_Cook
+var data = "Programming today is a race between software engineers striving to " +
+	"build bigger and better idiot-proof programs, and the Universe trying " +
+	"to produce bigger and better idiots. So far, the Universe is winning."
+
+func TestEncryptPassphraseGeneration(t *testing.T) {
+
+	file, _ := ioutil.TempFile("", "encrypt-test.txt")
+
+	filename := file.Name()
+	defer os.Remove(filename)
+
+	ioutil.WriteFile(filename, []byte(data), 0644)
+
+	_, err := Encrypt(filename, []byte(""))
+	if err != nil {
+		t.Fatalf("Encrypt %s: %v", filename, err)
+	}
+}
+
+func TestEncryptWithPassphrase(t *testing.T) {
 
 	file, _ := ioutil.TempFile("", "encrypt-test.txt")
 
 	filename := file.Name()
 
-	// https://en.wikiquote.org/wiki/Rick_Cook
-	data := "Programming today is a race between software engineers striving to " +
-		"build bigger and better idiot-proof programs, and the Universe trying " +
-		"to produce bigger and better idiots. So far, the Universe is winning."
-
 	ioutil.WriteFile(filename, []byte(data), 0644)
+	defer os.Remove(filename)
 
-	_, err := Encrypt(filename, "")
+	// set passphrase
+	_, err := Encrypt(filename, []byte("input-passphrase"))
 	if err != nil {
 		t.Fatalf("Encrypt %s: %v", filename, err)
 	}

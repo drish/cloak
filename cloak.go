@@ -23,52 +23,69 @@ import (
 	"github.com/drish/cloak/crypt"
 )
 
-var passphrase = flag.String("p", "", "[optional] user provided passphrase")
+var usage = `Usage: cloak [options...] [flags...]
 
-var usage = `Usage: cloak [options...] file.pdf [flags...]
+Example:
+
+cloak encrypt -p rlycoolpass -f file.pdf
 
 Options:
   encrypt	encrypts file
   decrypt	decrypts file
 
 Flags:
-  -p 		[optional] user provided passphrase, /dev/urandom if not provided
+  -f 	[required] file to encrypt
+  -p 	[optional] user provided passphrase, if not provided /dev/urandom is used
 `
 
 func main() {
 
 	encryptCommand := flag.NewFlagSet("encrypt", flag.ExitOnError)
+	encPassphrase := encryptCommand.String("p", "", "[optional] user provided passphrase to encrypt file")
+	encFilepath := encryptCommand.String("f", "", "[required] file to encrypt")
+
 	decryptCommand := flag.NewFlagSet("decrypt", flag.ExitOnError)
+	decPassphrase := decryptCommand.String("p", "", "[optional] user provided passphrase to decrypt")
+	// decFilepath := decryptCommand.String("f", "", "[required] file to decrypt")
 
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
 	}
 
-	flag.Parse()
-
-	if flag.NArg() < 1 {
+	if len(os.Args) < 2 {
 		usageAndExit("")
 	}
 
 	switch os.Args[1] {
 	case "encrypt":
 		encryptCommand.Parse(os.Args[2:])
-		if len(encryptCommand.Args()) == 0 {
-			usageAndExit("File to encrypt not provided")
-		}
-		path := encryptCommand.Arg(0)
-		output, err := crypt.Encrypt(path, *passphrase)
-		if err != nil {
-			log.Println(err)
-			os.Exit(1)
-		}
-		log.Println("output: ", output)
-		log.Println("finished ! ")
 	case "decrypt":
 		decryptCommand.Parse(os.Args[2:])
 	default:
 		usageAndExit("")
 	}
+
+	if encryptCommand.Parsed() {
+
+		// required input
+		if *encFilepath == "" {
+			usageAndExit("Path to file to encrypt is required. Flag -f ")
+		}
+
+		output, err := crypt.Encrypt(*encFilepath, []byte(*encPassphrase))
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		log.Println("output file: ", output)
+		log.Println("finished ! ")
+		return
+	}
+
+	if *decPassphrase == "" {
+		usageAndExit("msg")
+	}
+
 }
 
 func usageAndExit(msg string) {

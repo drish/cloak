@@ -13,3 +13,16 @@
 // limitations under the License.
 
 package crypt
+
+// reads the target file
+// func readFile(path string) ([]byte, error) {
+// 	data, err := ioutil.ReadFile(path)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return data, nil
+// }
+
+// func Decrypt(path, salt, passphrase, ext string) (string, error) {
+// 	return "", nil
+// }
