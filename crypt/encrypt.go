@@ -15,6 +15,7 @@
 package crypt
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"io/ioutil"
@@ -46,6 +47,7 @@ func readFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return data, nil
 }
 
@@ -104,7 +106,11 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
-	encrypted := secretbox.Seal(nonce[:], data, &nonce, &key)
+	// slice responsible for storing the final encrypted text
+	// file data + salt
+	final := [][]byte{data, salt}
+
+	encrypted := secretbox.Seal(nonce[:], bytes.Join(final, []byte("")), &nonce, &key)
 
 	output, err := createFile(path, encrypted)
 	if err != nil {
