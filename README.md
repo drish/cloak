@@ -9,25 +9,30 @@ WIP
 ## Usage
 
 ```sh
-Usage: cloak [options...] file.pdf [flags...]
+Usage: cloak [options...] [flags...]
+
+Example:
+
+cloak encrypt -p rlycoolpass -f file.pdf
 
 Options:
   encrypt	encrypts file
   decrypt	decrypts file
 
 Flags:
-  -p 		[optional] user provided passphrase, /dev/urandom if not provided
+  -f 	[required] file to encrypt
+  -p 	[optional] user provided passphrase, if not provided /dev/urandom is used
 ```
 
 ## Examples 
 
 ```sh
-> cloak encrypt file.pdf
+> cloak encrypt -f file.pdf
 
-> cloak encrypt file.pdf -p="coolpassword"
+> cloak encrypt -f file.pdf -p coolpassphrase
 // file
 
-> cloak decrypt file.pdf -p="coolpassword"
+> cloak decrypt -f file.pdf -p coolpassphrase
 ```
 
 ### TODO 
@@ -37,3 +42,4 @@ Flags:
 - efficitenly read large files using line by line chans
 - encrypt using msgpack format ?
 - key splitting using shamir
+- passphrase generator ?
