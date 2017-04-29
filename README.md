@@ -1,6 +1,6 @@
 # cloak
 
-A simple command line passphrase based file encryption tool, its similar to `openssl enc`, but it uses [scrypt](http://www.tarsnap.com/scrypt.html) for passphrase key derivation and [nacl](https://nacl.cr.yp.to/) box for encryption. 
+A simple command line passphrase based file encryption tool, its similar to `openssl enc`, but it uses [scrypt](http://www.tarsnap.com/scrypt.html) for passphrase key derivation and [nacl](https://nacl.cr.yp.to/) box for encryption.
 
 WIP
 
@@ -28,6 +28,7 @@ Flags:
 
 ```sh
 > cloak encrypt -f file.pdf
+// passphrase generated: 
 
 > cloak encrypt -f file.pdf -p coolpassphrase
 // file
@@ -42,4 +43,4 @@ Flags:
 - efficitenly read large files using line by line chans
 - encrypt using msgpack format ?
 - key splitting using shamir
-- passphrase generator ?
+- human readable passphrase generator ?

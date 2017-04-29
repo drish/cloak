@@ -47,18 +47,26 @@ func readFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return data, nil
 }
 
 // creates the output encrypted file without extension
-func createFile(file string, content []byte) (string, error) {
-	var extension = filepath.Ext(file)
-	var name = file[0 : len(file)-len(extension)]
-	err := ioutil.WriteFile(name, content, 0644)
+// save encrypted data in hex
+// appends salt to output file
+// TODO: add file ext into new line ?
+func createEncryptedFile(file string, salt, content []byte) (string, error) {
+
+	// rm file extension from output file
+	extension := filepath.Ext(file)
+	name := file[0 : len(file)-len(extension)]
+
+	final := [][]byte{[]byte(hex.EncodeToString(content)), []byte(hex.EncodeToString(salt))}
+
+	err := ioutil.WriteFile(name, bytes.Join(final, []byte("\n")), 0644)
 	if err != nil {
 		return "", err
 	}
+
 	return name, nil
 }
 
@@ -106,16 +114,13 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
-	// slice responsible for storing the final encrypted text
-	// file data + salt
-	final := [][]byte{data, salt}
+	// saves the nonce on the first 24 bytes of the encrypted output
+	encrypted := secretbox.Seal(nonce[:], data, &nonce, &key)
 
-	encrypted := secretbox.Seal(nonce[:], bytes.Join(final, []byte("")), &nonce, &key)
-
-	output, err := createFile(path, encrypted)
+	outputFilename, err := createEncryptedFile(path, salt, encrypted)
 	if err != nil {
 		return handleError(err)
 	}
 
-	return output, nil
+	return outputFilename, nil
 }
