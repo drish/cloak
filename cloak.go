@@ -46,7 +46,7 @@ func main() {
 
 	decryptCommand := flag.NewFlagSet("decrypt", flag.ExitOnError)
 	decPassphrase := decryptCommand.String("p", "", "[optional] user provided passphrase to decrypt")
-	// decFilepath := decryptCommand.String("f", "", "[required] file to decrypt")
+	decFilepath := decryptCommand.String("f", "", "[required] file to decrypt")
 
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
@@ -67,7 +67,6 @@ func main() {
 
 	if encryptCommand.Parsed() {
 
-		// required input
 		if *encFilepath == "" {
 			usageAndExit("Path to file to encrypt is required. Flag -f ")
 		}
@@ -83,9 +82,20 @@ func main() {
 	}
 
 	if *decPassphrase == "" {
-		usageAndExit("msg")
+		usageAndExit("Passphrase to decrypt file is required.")
 	}
 
+	if *decFilepath == "" {
+		usageAndExit("File to decrypt is required.")
+	}
+
+	_, err := crypt.Decrypt(*decFilepath, []byte(*decPassphrase))
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+	log.Println("finished ! ")
+	return
 }
 
 func usageAndExit(msg string) {

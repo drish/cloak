@@ -14,15 +14,82 @@
 
 package crypt
 
-// reads the target file
-// func readFile(path string) ([]byte, error) {
-// 	data, err := ioutil.ReadFile(path)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return data, nil
-// }
+import (
+	"encoding/hex"
+	"io/ioutil"
+	"log"
+	"strings"
 
-// func Decrypt(path, salt, passphrase, ext string) (string, error) {
-// 	return "", nil
-// }
+	"golang.org/x/crypto/nacl/secretbox"
+	"golang.org/x/crypto/scrypt"
+)
+
+// creates an output file
+func createPlainTextFile(data []byte) error {
+
+	err := ioutil.WriteFile("out", data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// encrypted file is encoded in hex and has the following structure:
+// first 24 bytes = nonce
+// last line = salt
+func Decrypt(path string, passphrase []byte) (string, error) {
+
+	file, err := readFile(path)
+	if err != nil {
+		return handleError(err)
+	}
+
+	// split the file by new line
+	full := strings.Split(string(file), "\n")
+
+	encryptedData := full[0]
+
+	salt := full[1]
+
+	// decodes salt last line
+	decodedSalt, err := hex.DecodeString(salt)
+	if err != nil {
+		return handleError(err)
+	}
+
+	// salt should be 32 bytes
+	if len(decodedSalt) != 32 {
+		return handleError(err)
+	}
+
+	// decodes encrypted file
+	decodedEncryptedData, err := hex.DecodeString(encryptedData)
+	if err != nil {
+		return handleError(err)
+	}
+
+	// reconstruct the key from the passphrase provided by the user + salt saved on file
+	var key [32]byte
+	keyBytes, err := scrypt.Key(passphrase, []byte(decodedSalt), 16384, 8, 1, 32)
+	if err != nil {
+		return handleError(err)
+	}
+	copy(key[:], keyBytes)
+
+	var decryptNonce [24]byte
+	copy(decryptNonce[:], decodedEncryptedData[:24])
+
+	decrypted, ok := secretbox.Open([]byte{}, []byte(decodedEncryptedData[24:]), &decryptNonce, &key)
+	if !ok {
+		log.Println("Unable to decrypt")
+		return "", nil
+	}
+
+	err = createPlainTextFile(decrypted)
+	if err != nil {
+		return handleError(err)
+	}
+
+	return "", nil
+}
