@@ -36,8 +36,7 @@ func TestDecrypt(t *testing.T) {
 
 	Encrypt(filename, passphrase)
 
-	extension := filepath.Ext(filename)
-	name := filename[0 : len(filename)-len(extension)]
+	name := filename[0 : len(filename)-len(ext)]
 
 	_, err := Decrypt(name, passphrase)
 	if err != nil {
