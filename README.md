@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://rawgit.com/drish/cloak/master/cloak-logo.png" height="140" />
+  <img src="https://rawgit.com/drish/cloak/master/cloak-logo.png" height="180" />
   <h3 align="center">Cloak (beta)</h3>
   <p align="center">A simple command line passphrase based file encryption tool.</p>
   <p align="center">
@@ -12,16 +12,10 @@
 
 ---
 
+Cloak is a simple command line passphrase based file encryption tool, its similar to `openssl enc`, but it uses [scrypt](http://www.tarsnap.com/scrypt.html) for passphrase key derivation and [nacl](https://nacl.cr.yp.to/) box for encryption.
 
-# cloak
+This tools is still a WIP.
 
-A simple command line passphrase based file encryption tool, its similar to `openssl enc`, but it uses [scrypt](http://www.tarsnap.com/scrypt.html) for passphrase key derivation and [nacl](https://nacl.cr.yp.to/) box for encryption.
-
-WIP
-
-<!-- [![Build Status](https://travis-ci.org/drish/cloak.svg?branch=master)](https://travis-ci.org/drish/cloak) -->
-<!-- [![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/drish/cloak/blob/master/LICENSE) -->
-<!-- [![Go Report Card](https://goreportcard.com/badge/github.com/drish/cloak)](https://goreportcard.com/report/github.com/drish/cloak) -->
 
 ## Usage
 
