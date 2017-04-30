@@ -5,6 +5,7 @@ A simple command line passphrase based file encryption tool, its similar to `ope
 WIP
 
 [![Build Status](https://travis-ci.org/drish/cloak.svg?branch=master)](https://travis-ci.org/drish/cloak)
+[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/drish/cloak/blob/master/LICENSE)
 
 ## Usage
 
