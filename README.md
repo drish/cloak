@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.rawgit.com/drish/cloak/master/cloak-logo.svg" height="140" />
+  <img src="https://rawgit.com/drish/cloak/master/cloak-logo.png" height="140" />
   <h3 align="center">Cloak (beta)</h3>
   <p align="center">A simple command line passphrase based file encryption tool.</p>
   <p align="center">
