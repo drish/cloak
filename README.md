@@ -39,18 +39,18 @@ Flags:
 
 ```sh
 > cloak encrypt -f file.pdf
-// 2017/04/30 15:13:21 generating random passphrase ...
-// 2017/04/30 15:13:21 file passphrase:  14abe93eb3347f91ad6c90f4ed3d9c8f
-// 2017/04/30 15:13:21 output file:  file
-// 2017/04/30 15:13:21 finished !  
+2017/04/30 15:13:21 generating random passphrase ...
+2017/04/30 15:13:21 file passphrase:  14abe93eb3347f91ad6c90f4ed3d9c8f
+2017/04/30 15:13:21 output file:  file
+2017/04/30 15:13:21 finished !  
 
 > cloak encrypt -f details.pdf -p coolpassphrase
-// 2017/04/30 15:15:06 using user defined passphrase
-// 2017/04/30 15:15:06 output file:  details
-// 2017/04/30 15:15:06 finished ! 
+2017/04/30 15:15:06 using user defined passphrase
+2017/04/30 15:15:06 output file:  details
+2017/04/30 15:15:06 finished ! 
 
 > cloak decrypt -f details.pdf -p coolpassphrase
-// 2017/04/30 15:16:26 finished ! 
+2017/04/30 15:16:26 finished ! 
 
 ```
 
