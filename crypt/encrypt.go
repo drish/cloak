@@ -52,15 +52,16 @@ func readFile(path string) ([]byte, error) {
 
 // creates the output encrypted file without extension
 // save encrypted data in hex
-// appends salt to output file
-// TODO: add file ext into new line ?
+// appends hex salt to output file
+// appends hex file ext to output file
 func createEncryptedFile(file string, salt, content []byte) (string, error) {
 
-	// rm file extension from output file
 	extension := filepath.Ext(file)
 	name := file[0 : len(file)-len(extension)]
 
-	final := [][]byte{[]byte(hex.EncodeToString(content)), []byte(hex.EncodeToString(salt))}
+	hexExt := hex.EncodeToString([]byte(extension))
+
+	final := [][]byte{[]byte(hex.EncodeToString(content)), []byte(hex.EncodeToString(salt)), []byte(hexExt)}
 
 	err := ioutil.WriteFile(name, bytes.Join(final, []byte("\n")), 0644)
 	if err != nil {

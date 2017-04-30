@@ -28,6 +28,8 @@ func TestDecrypt(t *testing.T) {
 	file, _ := ioutil.TempFile("", "encrypt-test.txt")
 
 	filename := file.Name()
+	ext := filepath.Ext(filename)
+
 	defer os.Remove(filename)
 
 	ioutil.WriteFile(filename, []byte(data), 0644)
@@ -37,15 +39,14 @@ func TestDecrypt(t *testing.T) {
 	extension := filepath.Ext(filename)
 	name := filename[0 : len(filename)-len(extension)]
 
-	// decrypt file without extension
 	_, err := Decrypt(name, passphrase)
 	if err != nil {
 		t.Fatalf("Decrypt %s: %v", filename, err)
 	}
 
-	defer os.Remove("out")
+	defer os.Remove("out" + string(ext))
 
-	if _, err := os.Stat("out"); os.IsNotExist(err) {
+	if _, err := os.Stat("out" + string(ext)); os.IsNotExist(err) {
 		t.Fatalf("Decrypt couldnt generate output file")
 	}
 

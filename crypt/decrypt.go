@@ -25,9 +25,11 @@ import (
 )
 
 // creates an output file
-func createPlainTextFile(data []byte) error {
+func createPlainTextFile(data, ext []byte) error {
 
-	err := ioutil.WriteFile("out", data, 0644)
+	outputFile := "out" + string(ext)
+
+	err := ioutil.WriteFile(outputFile, data, 0644)
 	if err != nil {
 		return err
 	}
@@ -49,8 +51,8 @@ func Decrypt(path string, passphrase []byte) (string, error) {
 	full := strings.Split(string(file), "\n")
 
 	encryptedData := full[0]
-
 	salt := full[1]
+	ext := full[2]
 
 	// decodes salt last line
 	decodedSalt, err := hex.DecodeString(salt)
@@ -69,6 +71,12 @@ func Decrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
+	// decodes file extension
+	decodedFileExt, err := hex.DecodeString(ext)
+	if err != nil {
+		return handleError(err)
+	}
+
 	// reconstruct the key from the passphrase provided by the user + salt saved on file
 	var key [32]byte
 	keyBytes, err := scrypt.Key(passphrase, []byte(decodedSalt), 16384, 8, 1, 32)
@@ -82,11 +90,11 @@ func Decrypt(path string, passphrase []byte) (string, error) {
 
 	decrypted, ok := secretbox.Open([]byte{}, []byte(decodedEncryptedData[24:]), &decryptNonce, &key)
 	if !ok {
-		log.Println("Unable to decrypt")
+		log.Fatal("Unable to decrypt")
 		return "", nil
 	}
 
-	err = createPlainTextFile(decrypted)
+	err = createPlainTextFile(decrypted, decodedFileExt)
 	if err != nil {
 		return handleError(err)
 	}
