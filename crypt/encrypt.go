@@ -83,8 +83,8 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 
 	if len(passphrase) == 0 {
 		log.Println("generating random passphrase ...")
-		passphrase = random(16)
-		log.Println("file passphrase: ", hex.EncodeToString(passphrase))
+		passphrase = []byte(hex.EncodeToString(random(16)))
+		log.Println("file passphrase: ", string(passphrase))
 	} else {
 		log.Println("using user defined passphrase")
 	}
@@ -92,8 +92,6 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 	// generates a 32 bytes salt
 	salt := random(32)
 
-	// recommended parameters as of 2009 are N=16384, r=8, p=1.
-	// should be increased as memory latency and CPU parallelism increases.
 	var key [32]byte
 	keyBytes, err := scrypt.Key(passphrase, salt, 16384, 8, 1, 32)
 	if err != nil {
@@ -115,7 +113,7 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
-	// saves the nonce on the first 24 bytes of the encrypted output
+	// saves the nonce at the first 24 bytes of the encrypted output
 	encrypted := secretbox.Seal(nonce[:], data, &nonce, &key)
 
 	outputFilename, err := createEncryptedFile(path, salt, encrypted)
