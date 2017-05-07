@@ -57,7 +57,7 @@ func readFile(path string) ([]byte, error) {
 func createEncryptedFile(file string, salt, content []byte) (string, error) {
 
 	extension := filepath.Ext(file)
-	name := file[0 : len(file)-len(extension)]
+	name := file[0 : len(file) - len(extension)]
 
 	hexExt := hex.EncodeToString([]byte(extension))
 
@@ -71,15 +71,15 @@ func createEncryptedFile(file string, salt, content []byte) (string, error) {
 	return name, nil
 }
 
-func handleError(e error) (string, error) {
+func handleError(e error) (string, string, error) {
 	log.Fatal(e)
-	return "", e
+	return "", "", e
 }
 
 // scrypt derives a 64 bytes key based from the passphrase if its provided
 // or randomly generates a passphrase if its not provided.
 // uses nacl box to encrypt the data using derived scrypt key
-func Encrypt(path string, passphrase []byte) (string, error) {
+func Encrypt(path string, passphrase []byte) (string, string, error) {
 
 	if len(passphrase) == 0 {
 		log.Println("generating random passphrase ...")
@@ -121,5 +121,5 @@ func Encrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
-	return outputFilename, nil
+	return string(passphrase), outputFilename, nil
 }

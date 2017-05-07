@@ -21,9 +21,13 @@ import (
 )
 
 // https://en.wikiquote.org/wiki/Rick_Cook
-var data = "Programming today is a race between software engineers striving to " +
-	"build bigger and better idiot-proof programs, and the Universe trying " +
-	"to produce bigger and better idiots. So far, the Universe is winning."
+var (
+	data = "Programming today is a race between software engineers striving to " +
+		"build bigger and better idiot-proof programs, and the Universe trying " +
+		"to produce bigger and better idiots. So far, the Universe is winning."
+
+	passphrase = []byte("woz")
+)
 
 func TestEncryptPassphraseGeneration(t *testing.T) {
 
@@ -34,9 +38,13 @@ func TestEncryptPassphraseGeneration(t *testing.T) {
 
 	ioutil.WriteFile(filename, []byte(data), 0644)
 
-	_, err := Encrypt(filename, []byte(""))
+	pass, _, err := Encrypt(filename, passphrase)
 	if err != nil {
 		t.Fatalf("Encrypt %s: %v", filename, err)
+	}
+
+	if (pass == "") {
+		t.Fatalf("Passphrase wasn't generated")
 	}
 }
 
@@ -50,8 +58,13 @@ func TestEncryptWithPassphrase(t *testing.T) {
 	defer os.Remove(filename)
 
 	// set passphrase
-	_, err := Encrypt(filename, []byte("input-passphrase"))
+	pass, _, err := Encrypt(filename, passphrase)
+
 	if err != nil {
 		t.Fatalf("Encrypt %s: %v", filename, err)
+	}
+
+	if (pass != string(passphrase)) {
+		t.Fatalf("Invalid passphrase")
 	}
 }

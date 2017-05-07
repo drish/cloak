@@ -40,7 +40,7 @@ func createPlainTextFile(data, ext []byte) error {
 // encrypted file is encoded in hex and has the following structure:
 // first 24 bytes = nonce
 // last line = salt
-func Decrypt(path string, passphrase []byte) (string, error) {
+func Decrypt(path string, passphrase []byte) (string, string, error) {
 
 	file, err := readFile(path)
 	if err != nil {
@@ -91,7 +91,7 @@ func Decrypt(path string, passphrase []byte) (string, error) {
 	decrypted, ok := secretbox.Open([]byte{}, []byte(decodedEncryptedData[24:]), &decryptNonce, &key)
 	if !ok {
 		log.Fatal("Unable to decrypt")
-		return "", nil
+		return "", "", nil
 	}
 
 	err = createPlainTextFile(decrypted, decodedFileExt)
@@ -99,5 +99,5 @@ func Decrypt(path string, passphrase []byte) (string, error) {
 		return handleError(err)
 	}
 
-	return "", nil
+	return string(passphrase), "", nil
 }

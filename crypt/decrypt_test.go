@@ -21,9 +21,9 @@ import (
 	"testing"
 )
 
-var passphrase = []byte("wozn")
+var decPassphrase = []byte("edsger")
 
-func TestDecrypt(t *testing.T) {
+func TestDecryptWithGivenPassphrase(t *testing.T) {
 
 	file, _ := ioutil.TempFile("", "encrypt-test.txt")
 
@@ -34,11 +34,11 @@ func TestDecrypt(t *testing.T) {
 
 	ioutil.WriteFile(filename, []byte(data), 0644)
 
-	Encrypt(filename, passphrase)
+	Encrypt(filename, decPassphrase)
 
-	name := filename[0 : len(filename)-len(ext)]
+	name := filename[0 : len(filename) - len(ext)]
 
-	_, err := Decrypt(name, passphrase)
+	_, _, err := Decrypt(name, decPassphrase)
 	if err != nil {
 		t.Fatalf("Decrypt %s: %v", filename, err)
 	}
@@ -47,6 +47,35 @@ func TestDecrypt(t *testing.T) {
 
 	if _, err := os.Stat("out" + string(ext)); os.IsNotExist(err) {
 		t.Fatalf("Decrypt couldnt generate output file")
+	}
+
+}
+
+func TestDecryptWithGeneratedPassphrase(t *testing.T) {
+
+	file, _ := ioutil.TempFile("", "encrypt-test.txt")
+
+	filename := file.Name()
+	ext := filepath.Ext(filename)
+
+	defer os.Remove(filename)
+
+	ioutil.WriteFile(filename, []byte(data), 0644)
+
+	// encrypt without given passphrase
+	p, _, _ := Encrypt(filename, []byte(""))
+
+	name := filename[0 : len(filename) - len(ext)]
+
+	_, _, err := Decrypt(name, []byte(p))
+	if err != nil {
+		t.Fatalf("Decrypt %s: %v", filename, err)
+	}
+
+	defer os.Remove("out" + string(ext))
+
+	if _, err := os.Stat("out" + string(ext)); os.IsNotExist(err) {
+		t.Fatalf("Decrypt couldn't generate output file")
 	}
 
 }

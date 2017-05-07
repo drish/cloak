@@ -71,7 +71,7 @@ func main() {
 			usageAndExit("Path to file to encrypt is required. Flag -f ")
 		}
 
-		output, err := crypt.Encrypt(*encFilepath, []byte(*encPassphrase))
+		passphrase, output, err := crypt.Encrypt(*encFilepath, []byte(*encPassphrase))
 		if err != nil {
 			log.Println(err)
 			os.Exit(1)
