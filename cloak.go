@@ -71,7 +71,7 @@ func main() {
 			usageAndExit("Path to file to encrypt is required. Flag -f ")
 		}
 
-		passphrase, output, err := crypt.Encrypt(*encFilepath, []byte(*encPassphrase))
+		_, output, err := crypt.Encrypt(*encFilepath, []byte(*encPassphrase))
 		if err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -89,7 +89,7 @@ func main() {
 		usageAndExit("File to decrypt is required.")
 	}
 
-	_, err := crypt.Decrypt(*decFilepath, []byte(*decPassphrase))
+	_, _, err := crypt.Decrypt(*decFilepath, []byte(*decPassphrase))
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
