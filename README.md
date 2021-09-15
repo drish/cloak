@@ -15,7 +15,7 @@
 Cloak is a simple command line passphrase based file encryption tool, its similar to `openssl enc`, but it uses [scrypt](http://www.tarsnap.com/scrypt.html) for passphrase key derivation and [nacl](https://nacl.cr.yp.to/) box for encryption.
 
 This tool is still a WIP.
-
+---VICTOR__
 
 ## Usage
 
